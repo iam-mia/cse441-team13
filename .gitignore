@@ -1,122 +1,28 @@
-# ==========================
-# Flutter / Dart
-# ==========================
+# ==========================================
+# Root .gitignore for Flutter Monorepo
+# ==========================================
 
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
+# --- Hệ điều hành & Tệp rác hệ thống ---
 .DS_Store
-.atom/
-.buildlog/
-.history
-.svn/
-migrate_working_dir/
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.swp
+*.swo
+*~
+*.log
 
-# IntelliJ related
+# --- IDE & Editors ---
+.idea/
 *.iml
 *.ipr
 *.iws
-.idea/
-
-# VS Code related
 .vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/App.framework
-**/ios/Flutter/Flutter.framework
-**/ios/Flutter/Flutter.podspec
-**/ios/Flutter/Generated.xcconfig
-**/ios/Flutter/ephemeral/
-**/ios/Flutter/flutter_export_environment.sh
-**/ios/ServiceDefinitions.json
-**/ios/Runner/GeneratedPluginRegistrant.*
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
-.pub-cache/
-.pub/
-build/
-/build/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
-# Android related
-**/android/**/gradle-wrapper.jar
-**/android/.gradle
-**/android/captures/
-**/android/gradlew
-**/android/gradlew.bat
-**/android/local.properties
-**/android/**/GeneratedPluginRegistrant.java
-
-# iOS/XCode related
-**/ios/**/*.mode1v3
-**/ios/**/*.mode2v3
-**/ios/**/*.moved-aside
-**/ios/**/*.pbxuser
-**/ios/**/*.perspectivev3
-**/ios/**/project.xcworkspace/
-**/ios/**/xcuserdata
-**/ios/.generated/
-**/ios/Flutter/App.framework
-**/ios/Flutter/Flutter.framework
-**/ios/Flutter/Flutter.podspec
-**/ios/Flutter/Generated.xcconfig
-**/ios/Flutter/app.flx
-**/ios/Flutter/app.zip
-**/ios/Flutter/flutter_assets/
-**/ios/Pods/
-**/ios/Runner/GeneratedPluginRegistrant.*
-
-# macOS related
-**/macos/Flutter/ephemeral/
-
-# Windows related
-**/windows/flutter/ephemeral/
-
-# Linux related
-**/linux/flutter/ephemeral/
-
-# Web related
-**/web/dart.js
-**/web/dart.js.deps
-
-# Coverage
-coverage/
-
-# Exceptions to above rules
-!**/ios/**/default.mode1v3
-!**/ios/**/default.mode2v3
-!**/ios/**/default.pbxuser
-!**/ios/**/default.perspectivev3
-
-# ==========================
-# Environment & Secrets
-# ==========================
-.env
-.env.*
-*.key
-*.pem
-*.p12
-*.jks
-
-# ==========================
-# IDE & Editor
-# ==========================
 *.sublime-workspace
 *.sublime-project
 .project
@@ -125,14 +31,70 @@ coverage/
 *.launch
 .settings/
 
-# ==========================
-# OS generated files
-# ==========================
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
+# --- Environment & Khóa bảo mật ---
+**/.env
+**/.env.*
+!**/.env.example
+**/*.key
+**/*.pem
+**/*.p12
+**/*.jks
+
+# --- Flutter / Dart Root & Nested Subfolders ---
+# Dùng **/ để bắt mọi thư mục con ở bất kỳ cấp nào
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/.pub-cache/
+**/.pub/
+**/build/
+**/coverage/
+
+# --- Android Artifacts (Nested) ---
+**/android/**/gradle-wrapper.jar
+**/android/.gradle/
+**/android/captures/
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+
+# --- iOS Artifacts (Nested) ---
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/project.xcworkspace/
+**/ios/**/xcuserdata/
+**/ios/.generated/
+**/ios/Pods/
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+
+!**/ios/**/default.mode1v3
+!**/ios/**/default.mode2v3
+!**/ios/**/default.pbxuser
+!**/ios/**/default.perspectivev3
+
+# --- Desktop & Web Platforms (Nested) ---
+**/macos/Flutter/ephemeral/
+**/windows/flutter/ephemeral/
+**/linux/flutter/ephemeral/
+**/web/dart.js
+**/web/dart.js.deps
+
+# --- Ngăn chặn lỗi lồng Submodule Git ---
+!/.git
+**/.git/
