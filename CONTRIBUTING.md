@@ -1,249 +1,330 @@
-# 📋 CONTRIBUTING.md — Quy Trình Đóng Góp Code & Kiểm Soát Chất Lượng
+# AI AGENT WORKFLOW & CODE QUALITY GUIDELINES
 
-> **⚠️ QUAN TRỌNG**: Tất cả thành viên (và AI code assistant) **BẮT BUỘC** phải đọc và tuân thủ tài liệu này trước khi viết bất kỳ dòng code nào.
-
----
-
-## 📌 Mục lục
-
-1. [Quy tắc chung](#1-quy-tắc-chung)
-2. [Quy trình làm việc với Git](#2-quy-trình-làm-việc-với-git)
-3. [Quy tắc đặt tên nhánh](#3-quy-tắc-đặt-tên-nhánh)
-4. [Quy tắc commit](#4-quy-tắc-commit)
-5. [Quy trình Pull Request](#5-quy-trình-pull-request)
-6. [Checklist trước khi tạo PR](#6-checklist-trước-khi-tạo-pr)
-7. [Quy tắc code Flutter / Dart](#7-quy-tắc-code-flutter--dart)
-8. [Hướng dẫn cho AI Code Assistant](#8-hướng-dẫn-cho-ai-code-assistant)
-9. [Review & Merge](#9-review--merge)
-10. [Xử lý conflict](#10-xử-lý-conflict)
+> **⚠️ CRITICAL**: You are an AI code assistant operating in a **Flutter monorepo**.
+> You **MUST** read and follow this entire document before writing ANY code.
+> Failure to comply will result in rejected Pull Requests.
 
 ---
 
-## 1. Quy tắc chung
+## Table of Contents
 
-- **KHÔNG push trực tiếp lên nhánh `main`**. Mọi thay đổi phải thông qua Pull Request.
-- **KHÔNG commit các file được liệt kê trong `.gitignore`** (build, IDE config, secrets...).
-- **Mỗi PR chỉ giải quyết MỘT vấn đề** (1 feature / 1 bug fix / 1 refactor).
-- **Code phải build thành công** (`flutter build`) trước khi tạo PR.
-- **Viết comment bằng tiếng Việt hoặc tiếng Anh** — nhất quán trong cùng một file.
+1. [Tech Stack Restriction](#1-tech-stack-restriction)
+2. [Repository Architecture](#2-repository-architecture)
+3. [Strict Boundaries — What NOT To Do](#3-strict-boundaries--what-not-to-do)
+4. [Git Workflow Protocol](#4-git-workflow-protocol)
+5. [Branch Naming Convention](#5-branch-naming-convention)
+6. [Commit Convention](#6-commit-convention)
+7. [Pull Request Process](#7-pull-request-process)
+8. [Pre-PR Checklist](#8-pre-pr-checklist)
+9. [Flutter / Dart Code Standards](#9-flutter--dart-code-standards)
+10. [AI Agent — Mandatory Rules](#10-ai-agent--mandatory-rules)
+11. [AI Agent — Step-by-Step Workflow](#11-ai-agent--step-by-step-workflow)
+12. [Review & Merge Policy](#12-review--merge-policy)
+13. [Conflict Resolution](#13-conflict-resolution)
 
 ---
 
-## 2. Quy trình làm việc với Git
+## 1. Tech Stack Restriction
 
+- This entire repository uses **FLUTTER & DART ONLY**.
+- Do **NOT** scaffold, initialize, or introduce any other frameworks, runtimes, or languages (no Node.js, Python, Java-backend, etc.).
+- All projects must use standard Flutter project structure.
+
+---
+
+## 2. Repository Architecture
+
+This is a **monorepo** where each assignment has separate workspaces per member (identified by MSSV).
+
+```text
+cse441-team13/                          ← ROOT (do NOT run Flutter here)
+├── README.md                           ← Project info (for humans)
+├── CONTRIBUTING.md                     ← This file (for AI agents & contributors)
+├── .gitignore
+│
+├── bai-tap-1/                          ← Assignment 1
+│   ├── 2351170574/                     ← Phùng Minh Anh's Flutter project
+│   │   ├── lib/
+│   │   │   ├── main.dart
+│   │   │   ├── models/
+│   │   │   ├── screens/
+│   │   │   ├── widgets/
+│   │   │   ├── services/
+│   │   │   ├── utils/
+│   │   │   └── theme/
+│   │   ├── test/
+│   │   ├── assets/
+│   │   └── pubspec.yaml
+│   ├── 2251172456/                     ← Phạm Văn Phước's Flutter project
+│   ├── 2351170570/                     ← Ngô Tuấn Anh's Flutter project
+│   └── 2351170616/                     ← Nguyễn Đình Tuấn Sơn's Flutter project
+│
+├── bai-tap-2/
+│   ├── 2351170574/
+│   ├── 2251172456/
+│   ├── 2351170570/
+│   └── 2351170616/
+│
+└── ...
 ```
-main (nhánh chính, luôn ổn định)
+
+### Internal Flutter Project Structure
+
+Each member workspace (`bai-tap-X/<MSSV>/`) is a standalone Flutter project:
+
+```text
+<MSSV>/
+├── lib/
+│   ├── main.dart                  # Entry point
+│   ├── models/                    # Data models (DTOs, entities)
+│   │   └── user_model.dart
+│   ├── screens/                   # Full-page screens/views
+│   │   ├── home_screen.dart
+│   │   └── login_screen.dart
+│   ├── widgets/                   # Reusable UI components
+│   │   ├── custom_button.dart
+│   │   └── input_field.dart
+│   ├── services/                  # Business logic (API, DB, auth)
+│   │   └── auth_service.dart
+│   ├── utils/                     # Helpers, constants, extensions
+│   │   ├── constants.dart
+│   │   └── helpers.dart
+│   └── theme/                     # App theme & styling
+│       └── app_theme.dart
+├── test/                          # Unit & widget tests
+├── assets/                        # Images, fonts, etc.
+└── pubspec.yaml                   # Dependencies
+```
+
+### Target Scope Rule
+
+> **All modifications MUST be restricted to `bai-tap-X/<current-member-MSSV>/` only.**
+
+---
+
+## 3. Strict Boundaries — What NOT To Do
+
+### ❌ NO Cross-Workspace Pollution
+- **NEVER** edit, format, or delete files belonging to **other members** or **other assignments**.
+- **NEVER** edit root-level files (`.gitignore`, `CONTRIBUTING.md`, `README.md`) unless explicitly instructed.
+
+### ❌ NO Nested .git Repositories (CRITICAL)
+- If you clone or paste an existing Flutter template into the workspace, you **MUST** delete any nested `.git/` folder inside `bai-tap-X/<MSSV>/` immediately.
+- **NEVER** create git submodules.
+
+### ❌ NEVER Run Flutter Commands at Root
+- **NEVER** run `flutter pub get`, `flutter build`, or `flutter run` in the root folder.
+- **ALWAYS** `cd` into the assigned member workspace first:
+  ```bash
+  cd bai-tap-X/<MSSV>/
+  ```
+
+### ❌ NO Direct Push to `main`
+- **NEVER** commit or push directly to `main`.
+- Always work on a separate branch and create a Pull Request.
+
+### ❌ NO Prohibited Content in Code
+- **NEVER** include: API keys, secrets, passwords (hardcoded)
+- **NEVER** include: IDE config files (`.idea/`, `.vscode/`)
+- **NEVER** include: build artifacts, dead code, unused imports
+- **NEVER** use `print()` for debugging — use `debugPrint()` or a logger
+
+---
+
+## 4. Git Workflow Protocol
+
+```text
+main (stable, protected)
  │
- ├── feature/bai-tap-1/login-screen    (Nhánh tính năng)
- ├── fix/bai-tap-1/null-pointer        (Nhánh sửa lỗi)
- └── docs/update-readme                (Nhánh tài liệu)
+ ├── bai-tap-1/2351170574       ← Branch for member's assignment
+ ├── bai-tap-1/2251172456
+ ├── bai-tap-2/2351170574
+ └── ...
 ```
 
-### Quy trình từng bước:
+### Step-by-step:
 
 ```bash
-# 1. Cập nhật main mới nhất
+# 1. Update main
 git checkout main
 git pull origin main
 
-# 2. Tạo nhánh mới
-git checkout -b feature/bai-tap-X/ten-tinh-nang
+# 2. Create a new branch
+git checkout -b bai-tap-X/<MSSV>
 
-# 3. Code và commit theo từng phần nhỏ
-git add .
-git commit -m "feat(bai-tap-X): mô tả ngắn gọn"
+# 3. Navigate to your workspace
+cd bai-tap-X/<MSSV>/
 
-# 4. Push nhánh lên remote
-git push origin feature/bai-tap-X/ten-tinh-nang
+# 4. Work: code, test, commit (see sections below)
 
-# 5. Tạo Pull Request trên GitHub
-# 6. Chờ review → fix feedback → merge
+# 5. Push branch
+git push -u origin bai-tap-X/<MSSV>
+
+# 6. Create Pull Request on GitHub → Wait for review → Merge
 ```
 
 ---
 
-## 3. Quy tắc đặt tên nhánh
+## 5. Branch Naming Convention
 
-**Format**: `<type>/<scope>/<mô-tả-ngắn>`
+**Format**: `<bai-tap-X>/<MSSV>`
 
-| Type | Mục đích | Ví dụ |
-|------|----------|-------|
-| `feature/` | Tính năng mới | `feature/bai-tap-1/login-screen` |
-| `fix/` | Sửa lỗi | `fix/bai-tap-2/crash-on-submit` |
-| `refactor/` | Tái cấu trúc | `refactor/bai-tap-1/clean-up-widgets` |
-| `docs/` | Tài liệu | `docs/update-contributing` |
-| `test/` | Viết test | `test/bai-tap-1/unit-test-login` |
+| Ví dụ | Giải thích |
+|-------|------------|
+| `bai-tap-1/2351170574` | Bài tập 1 — Phùng Minh Anh |
+| `bai-tap-2/2251172456` | Bài tập 2 — Phạm Văn Phước |
+| `bai-tap-1/2351170570` | Bài tập 1 — Ngô Tuấn Anh |
 
-**Lưu ý**:
-- Dùng chữ thường, phân cách bằng dấu gạch ngang `-`
-- Không dùng ký tự đặc biệt, dấu tiếng Việt
-- Tên nhánh phải mô tả rõ công việc đang làm
+**Rules**:
+- Lowercase only, separated by hyphens `-`
+- No special characters, no Vietnamese diacritics
+- Branch name must clearly identify assignment + member
 
 ---
 
-## 4. Quy tắc commit
+## 6. Commit Convention
 
 ### Format
 
 ```
-<type>(<scope>): <mô tả ngắn gọn>
+<type>(<scope>): <short description>
 
-[Body - tùy chọn: giải thích chi tiết]
+[Optional body: detailed explanation]
 
-[Footer - tùy chọn: breaking changes, issue references]
+[Optional footer: breaking changes, issue refs]
 ```
 
-### Các type được sử dụng
+### Types
 
-| Type | Ý nghĩa | Ví dụ |
-|------|----------|-------|
-| `feat` | Thêm tính năng mới | `feat(bai-tap-1): thêm form đăng nhập` |
-| `fix` | Sửa lỗi | `fix(bai-tap-1): sửa lỗi validate email` |
-| `docs` | Cập nhật tài liệu | `docs: thêm hướng dẫn cài đặt` |
-| `style` | Format code (không thay đổi logic) | `style(bai-tap-1): format theo lint rules` |
-| `refactor` | Tái cấu trúc (không thay đổi behavior) | `refactor(bai-tap-2): tách widget` |
-| `test` | Thêm hoặc sửa test | `test(bai-tap-1): unit test cho AuthService` |
-| `chore` | Config, build, dependencies | `chore: cập nhật pubspec.yaml` |
+| Type | Meaning | Example |
+|------|---------|---------|
+| `feat` | New feature | `feat(bai-tap-1): add login screen` |
+| `fix` | Bug fix | `fix(bai-tap-1): fix email validation error` |
+| `docs` | Documentation | `docs: update README` |
+| `style` | Code formatting (no logic change) | `style(bai-tap-1): apply dart format` |
+| `refactor` | Code restructure (no behavior change) | `refactor(bai-tap-2): extract widget` |
+| `test` | Add/update tests | `test(bai-tap-1): add AuthService unit test` |
+| `chore` | Config, build, deps | `chore: update pubspec.yaml` |
 
-### Quy tắc:
-- Mô tả ngắn gọn, không quá 72 ký tự
-- Viết ở thì hiện tại: "thêm" (không phải "đã thêm")
-- Không kết thúc bằng dấu chấm
+### Rules:
+- Description ≤ 72 characters
+- Use present tense: "add" (not "added")
+- Do not end with a period
+- Scope should identify the assignment: `bai-tap-1`, `bai-tap-2`, etc.
 
 ---
 
-## 5. Quy trình Pull Request
+## 7. Pull Request Process
 
-### Tiêu đề PR
+### PR Title Format
 
 ```
-[<Type>] <Bài tập> - <Mô tả ngắn>
+[<Type>] <Assignment> - <Short description>
 
-Ví dụ:
-[Feature] Bài tập 1 - Màn hình đăng nhập
-[Fix] Bài tập 2 - Sửa lỗi crash khi submit form
-[Refactor] Bài tập 1 - Tách widget cho màn hình chính
+Examples:
+[Feature] Bài tập 1 - Login screen
+[Fix] Bài tập 2 - Fix crash on form submit
+[Refactor] Bài tập 1 - Extract reusable widgets
 ```
 
-### Template mô tả PR
-
-Khi tạo PR, điền đầy đủ theo template sau:
+### PR Description Template
 
 ```markdown
-## 📝 Mô tả
-<!-- Mô tả ngắn gọn thay đổi của bạn -->
+## 📝 Description
+<!-- Briefly describe what this PR does -->
 
-## 🔗 Liên kết
-<!-- Issue hoặc task liên quan (nếu có) -->
+## 👤 Member
+<!-- Your name and MSSV -->
+
+## 🔗 Related
+<!-- Related issue or task (if any) -->
 
 ## 📸 Screenshots / Video
-<!-- Đính kèm ảnh/video demo nếu có thay đổi UI -->
+<!-- Attach screenshots/video if UI changes -->
 
 ## ✅ Checklist
-- [ ] Code build thành công (`flutter build`)
-- [ ] Đã test trên emulator/thiết bị thật
-- [ ] Không có warning từ `flutter analyze`
-- [ ] Commit message theo đúng convention
-- [ ] Tên nhánh đúng format
-- [ ] Không chứa file thừa (build, IDE config...)
-- [ ] Đã viết comment cho các hàm phức tạp
-- [ ] (Nếu thay đổi UI) Đã đính kèm screenshot
+- [ ] Code builds successfully (`flutter build`)
+- [ ] Tested on emulator / real device
+- [ ] No warnings from `flutter analyze`
+- [ ] Commit messages follow convention
+- [ ] Branch name follows format
+- [ ] No unnecessary files (build, IDE config...)
+- [ ] Complex functions have comments
+- [ ] (If UI change) Screenshots attached
 
-## 🧪 Cách test
-<!-- Hướng dẫn cụ thể để reviewer có thể test -->
-1. Chạy `flutter pub get`
-2. Chạy `flutter run`
-3. ...
+## 🧪 How to Test
+1. `cd bai-tap-X/<MSSV>/`
+2. `flutter pub get`
+3. `flutter run`
+4. ...
 
-## 📌 Ghi chú
-<!-- Bất kỳ ghi chú nào cho reviewer -->
+## 📌 Notes
+<!-- Any additional notes for the reviewer -->
 ```
 
 ---
 
-## 6. Checklist trước khi tạo PR
+## 8. Pre-PR Checklist
 
-Trước khi tạo PR, **BẮT BUỘC** kiểm tra:
+Before creating a PR, you **MUST** run these commands inside the member workspace:
 
 ```bash
-# 1. Kiểm tra code analysis
+cd bai-tap-X/<MSSV>/
+
+# 1. Code analysis — must have ZERO errors/warnings
 flutter analyze
 
-# 2. Đảm bảo build thành công
-flutter build apk --debug   # Android
-# hoặc
-flutter build ios --debug    # iOS (macOS only)
-
-# 3. Format code
+# 2. Format code
 dart format .
 
-# 4. Chạy test (nếu có)
+# 3. Build check
+flutter build apk --debug      # Android
+# or
+flutter build ios --debug       # iOS (macOS only)
+
+# 4. Run tests (if any)
 flutter test
 
-# 5. Kiểm tra không có file thừa
+# 5. Verify no unnecessary files
 git status
 git diff --stat
 ```
 
-### ❌ PR sẽ bị REJECT nếu:
-- Push trực tiếp lên `main`
-- Code không build được
-- Có warning/error từ `flutter analyze`
-- Commit message không đúng convention
-- PR chứa nhiều feature không liên quan
-- Không có mô tả hoặc mô tả quá sơ sài
-- Chứa file không cần thiết (build, .idea, .vscode...)
-- Code không được format (`dart format`)
+### ❌ PR Will Be REJECTED If:
+- Pushed directly to `main`
+- Code doesn't build
+- Has errors/warnings from `flutter analyze`
+- Commit messages don't follow convention
+- PR contains unrelated changes
+- PR description is missing or too brief
+- Contains unnecessary files (build, `.idea/`, `.vscode/`...)
+- Code is not formatted (`dart format`)
+- Modifies files outside assigned workspace
 
 ---
 
-## 7. Quy tắc code Flutter / Dart
+## 9. Flutter / Dart Code Standards
 
-### 7.1 Cấu trúc thư mục cho mỗi bài tập
+### 9.1 Naming Convention
 
-```
-bai_tap_X/
-├── lib/
-│   ├── main.dart              # Entry point
-│   ├── models/                # Data models
-│   │   └── user_model.dart
-│   ├── screens/               # Các màn hình
-│   │   ├── home_screen.dart
-│   │   └── login_screen.dart
-│   ├── widgets/               # Widget tái sử dụng
-│   │   ├── custom_button.dart
-│   │   └── input_field.dart
-│   ├── services/              # Logic xử lý (API, DB...)
-│   │   └── auth_service.dart
-│   ├── utils/                 # Tiện ích, hằng số
-│   │   ├── constants.dart
-│   │   └── helpers.dart
-│   └── theme/                 # Theme & styling
-│       └── app_theme.dart
-├── test/                      # Unit & widget tests
-├── assets/                    # Hình ảnh, fonts...
-└── pubspec.yaml
-```
-
-### 7.2 Quy tắc đặt tên
-
-| Loại | Convention | Ví dụ |
-|------|-----------|-------|
+| Type | Convention | Example |
+|------|-----------|---------|
 | File | `snake_case` | `login_screen.dart` |
 | Class | `PascalCase` | `LoginScreen` |
-| Biến, hàm | `camelCase` | `userName`, `getUserData()` |
-| Hằng số | `camelCase` hoặc `SCREAMING_SNAKE_CASE` | `maxRetries`, `API_BASE_URL` |
+| Variable, Function | `camelCase` | `userName`, `getUserData()` |
+| Constant | `camelCase` or `SCREAMING_SNAKE_CASE` | `maxRetries`, `API_BASE_URL` |
 | Widget | `PascalCase` | `CustomButton` |
-| Enum | `PascalCase` (value: `camelCase`) | `UserRole.admin` |
+| Enum | `PascalCase` (values: `camelCase`) | `UserRole.admin` |
+| Private | prefix `_` | `_isLoading`, `_buildHeader()` |
 
-### 7.3 Quy tắc viết Widget
+### 9.2 Widget Rules
 
 ```dart
-// ✅ TỐT: Widget nhỏ, rõ ràng, tái sử dụng
+// ✅ GOOD: Small, clear, reusable widget
 class CustomButton extends StatelessWidget {
   final String label;
   final VoidCallback onPressed;
-  
+
   const CustomButton({
     super.key,
     required this.label,
@@ -259,199 +340,202 @@ class CustomButton extends StatelessWidget {
   }
 }
 
-// ❌ XẤU: Widget quá lớn, chứa tất cả logic
+// ❌ BAD: Monolithic widget with all logic in one place
 class MyScreen extends StatefulWidget {
-  // ... 500 dòng code trong một widget
+  // ... 500+ lines of code in a single widget
 }
 ```
 
-### 7.4 Quy tắc khác
+### 9.3 General Rules
 
-- **Mỗi file chỉ chứa 1 widget/class chính** (có thể có private helper class)
-- **Tối đa 300 dòng / file**. Nếu vượt quá, tách thành widget nhỏ hơn
-- **Dùng `const` constructor** khi có thể
-- **Tránh magic numbers** — dùng hằng số có tên rõ ràng
-- **Comment cho logic phức tạp**, không comment cho code hiển nhiên
-- **Sử dụng `final`** cho biến không thay đổi
-- **Tránh nested widget quá sâu** (tối đa 4-5 cấp)
+- **1 main class/widget per file** (private helpers allowed)
+- **Max 300 lines per file** — split into smaller widgets if exceeded
+- **Use `const` constructors** whenever possible
+- **No magic numbers** — use named constants
+- **Comment complex logic only** — don't comment obvious code
+- **Use `final`** for variables that don't change
+- **Max widget nesting depth: 4–5 levels** — extract sub-widgets beyond that
+- **No `print()`** — use `debugPrint()` or a logging package
+- **Use `final` and `const`** aggressively for better performance
+- **Import ordering**: dart: → package: → relative imports
 
 ---
 
-## 8. Hướng dẫn cho AI Code Assistant
+## 10. AI Agent — Mandatory Rules
 
-> 🤖 **Phần này dành cho AI tools (GitHub Copilot, Gemini, ChatGPT, Claude, Cursor, v.v.).**
-> Khi thành viên sử dụng AI để sinh code, AI **PHẢI** tuân thủ các quy tắc sau:
+> 🤖 This section is specifically for **AI tools** (GitHub Copilot, Gemini, ChatGPT, Claude, Cursor, Windsurf, etc.).
 
-### 8.1 Quy tắc BẮT BUỘC cho AI
+### The AI Agent MUST:
 
-1. **Đọc CONTRIBUTING.md trước khi code**
-   - AI phải hiểu quy trình, convention và cấu trúc thư mục của dự án
-   - Không sinh code trái với các quy tắc đã đặt ra
+1. **Read this CONTRIBUTING.md FIRST** before writing any code
+2. **Identify the target workspace**: `bai-tap-X/<MSSV>/`
+3. **Only modify files within that workspace** — never touch other members' code
+4. **Follow the directory structure** in Section 2 exactly
+5. **Follow naming conventions** in Section 9.1 exactly
+6. **Generate code in small, focused modules** — one feature/fix per PR
+7. **Keep each file ≤ 300 lines**
+8. **Run quality checks** before suggesting a push (Section 8)
+9. **Use proper commit messages** following Section 6
+10. **Never push directly to `main`** — always create a branch + PR
 
-2. **Tuân thủ cấu trúc thư mục**
-   - Đặt file đúng thư mục: `models/`, `screens/`, `widgets/`, `services/`, `utils/`
-   - Không tạo file ở vị trí tùy tiện
+### The AI Agent MUST NOT:
 
-3. **Tuân thủ naming convention**
-   - File: `snake_case.dart`
-   - Class: `PascalCase`
-   - Variables/Functions: `camelCase`
+| ❌ Forbidden | ✅ Do This Instead |
+|-------------|-------------------|
+| Push directly to `main` | Create branch → PR |
+| Use `git add .` | `git add bai-tap-X/<MSSV>/` (specific paths) |
+| Generate entire app in one shot | Generate module by module |
+| Skip `flutter analyze` | Always run before push |
+| Hardcode strings/colors/sizes | Use `constants.dart` or `app_theme.dart` |
+| Nest widgets > 5 levels | Extract into separate widget files |
+| Use `print()` | Use `debugPrint()` or logger |
+| Create files in wrong directories | Follow directory structure in Section 2 |
+| Edit other members' workspaces | Stay in `bai-tap-X/<current-MSSV>/` only |
+| Run Flutter commands at root | Always `cd bai-tap-X/<MSSV>/` first |
+| Create nested `.git/` directories | Delete `.git/` if copied from template |
+| Introduce non-Flutter frameworks | Flutter & Dart ONLY |
+| Generate dead code / unused imports | Clean, minimal code only |
+| Commit `.idea/`, `.vscode/`, `build/` | These are in `.gitignore` |
 
-4. **Sinh code theo module nhỏ**
-   - Mỗi lần sinh code chỉ xử lý **1 feature / 1 fix** cụ thể
-   - Không sinh toàn bộ ứng dụng trong 1 lần
-   - Mỗi file tối đa 300 dòng
+---
 
-5. **Commit message theo convention**
-   ```
-   <type>(<scope>): <mô tả>
-   ```
+## 11. AI Agent — Step-by-Step Workflow
 
-6. **Không sinh code chứa**:
-   - API keys, secrets, passwords hardcode
-   - File config IDE (.idea, .vscode)
-   - Build artifacts
-   - Code thừa, không sử dụng (dead code)
-   - `print()` debug — dùng logging thay thế
-
-7. **Luôn kiểm tra trước khi suggest push**:
-   ```bash
-   flutter analyze    # Không error/warning
-   dart format .      # Code đã format
-   flutter build      # Build thành công
-   flutter test       # Test pass (nếu có)
-   ```
-
-### 8.2 Quy trình AI sinh code → Push
+When tasked to work for `<member-MSSV>` on `<bai-tap-X>`:
 
 ```
-┌─────────────────────────────────────────────────┐
-│  BƯỚC 1: Hiểu yêu cầu                          │
-│  - Đọc CONTRIBUTING.md                          │
-│  - Xác định scope (bài tập nào, feature nào)    │
-│  - Xác định các file cần tạo/sửa               │
-└─────────────────┬───────────────────────────────┘
-                  ▼
-┌─────────────────────────────────────────────────┐
-│  BƯỚC 2: Cập nhật nhánh                         │
-│  git checkout main && git pull origin main       │
-│  git checkout -b <type>/<scope>/<mô-tả>         │
-└─────────────────┬───────────────────────────────┘
-                  ▼
-┌─────────────────────────────────────────────────┐
-│  BƯỚC 3: Sinh code                              │
-│  - Tuân thủ cấu trúc thư mục                   │
-│  - Tuân thủ naming convention                   │
-│  - Mỗi file ≤ 300 dòng                         │
-│  - Tách widget, tách logic rõ ràng              │
-└─────────────────┬───────────────────────────────┘
-                  ▼
-┌─────────────────────────────────────────────────┐
-│  BƯỚC 4: Kiểm tra chất lượng                    │
-│  flutter analyze   ← Không error/warning        │
-│  dart format .     ← Code đã format             │
-│  flutter build     ← Build thành công            │
-│  flutter test      ← Test pass                   │
-└─────────────────┬───────────────────────────────┘
-                  ▼
-┌─────────────────────────────────────────────────┐
-│  BƯỚC 5: Commit & Push                          │
-│  git add <specific-files>  ← KHÔNG dùng git add .│
-│  git commit -m "<type>(<scope>): <mô tả>"       │
-│  git push origin <tên-nhánh>                     │
-└─────────────────┬───────────────────────────────┘
-                  ▼
-┌─────────────────────────────────────────────────┐
-│  BƯỚC 6: Tạo Pull Request                       │
-│  - Điền đầy đủ theo PR template                 │
-│  - Đính kèm screenshot nếu thay đổi UI         │
-│  - Chờ review từ nhóm trưởng/thành viên khác    │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│  STEP 1: Understand Requirements                    │
+│  • Read this CONTRIBUTING.md                        │
+│  • Identify scope: which assignment, which feature  │
+│  • Identify files to create/modify                  │
+│  • Verify target workspace: bai-tap-X/<MSSV>/      │
+└──────────────────┬──────────────────────────────────┘
+                   ▼
+┌─────────────────────────────────────────────────────┐
+│  STEP 2: Branch Management                          │
+│  git checkout main                                  │
+│  git pull origin main                               │
+│  git checkout -b bai-tap-X/<MSSV>                   │
+└──────────────────┬──────────────────────────────────┘
+                   ▼
+┌─────────────────────────────────────────────────────┐
+│  STEP 3: Navigate & Setup                           │
+│  cd bai-tap-X/<MSSV>/                               │
+│  flutter pub get                                    │
+│  (Delete .git/ if exists inside workspace)          │
+└──────────────────┬──────────────────────────────────┘
+                   ▼
+┌─────────────────────────────────────────────────────┐
+│  STEP 4: Implement Code                             │
+│  • Follow directory structure (Section 2)           │
+│  • Follow naming convention (Section 9.1)           │
+│  • Max 300 lines per file                           │
+│  • Extract reusable widgets                         │
+│  • Use constants and themes                         │
+└──────────────────┬──────────────────────────────────┘
+                   ▼
+┌─────────────────────────────────────────────────────┐
+│  STEP 5: Quality Check (MANDATORY)                  │
+│  cd bai-tap-X/<MSSV>/                               │
+│  flutter analyze       ← ZERO errors/warnings      │
+│  dart format .          ← Code formatted            │
+│  flutter build          ← Build succeeds            │
+│  flutter test           ← Tests pass (if any)       │
+└──────────────────┬──────────────────────────────────┘
+                   ▼
+┌─────────────────────────────────────────────────────┐
+│  STEP 6: Commit & Push                              │
+│  git add bai-tap-X/<MSSV>/  ← SPECIFIC paths only  │
+│  git commit -m "<type>(bai-tap-X): <description>"   │
+│  git push -u origin bai-tap-X/<MSSV>               │
+└──────────────────┬──────────────────────────────────┘
+                   ▼
+┌─────────────────────────────────────────────────────┐
+│  STEP 7: Create Pull Request                        │
+│  • Use PR title format (Section 7)                  │
+│  • Fill in PR template completely                   │
+│  • Attach screenshots if UI changes                 │
+│  • Wait for review from team lead                   │
+└─────────────────────────────────────────────────────┘
 ```
 
-### 8.3 Template cho AI khi tạo commit
+### Commit Templates for AI
 
 ```bash
-# Feature mới
-git commit -m "feat(bai-tap-X): thêm [tên tính năng]
+# New feature
+git commit -m "feat(bai-tap-X): add <feature-name>
 
-- Tạo [tên file] với chức năng [mô tả]
-- Thêm [widget/service/model] cho [mục đích]
-- Tuân thủ CONTRIBUTING.md"
+- Created <filename> with <functionality>
+- Added <widget/service/model> for <purpose>
+- Follows CONTRIBUTING.md guidelines"
 
-# Sửa lỗi
-git commit -m "fix(bai-tap-X): sửa lỗi [mô tả lỗi]
+# Bug fix
+git commit -m "fix(bai-tap-X): fix <bug-description>
 
-- Nguyên nhân: [giải thích]
-- Giải pháp: [mô tả cách sửa]"
+- Root cause: <explanation>
+- Solution: <approach>"
+
+# Refactor
+git commit -m "refactor(bai-tap-X): restructure <component>
+
+- Extracted <widget> from <source>
+- Improved readability and reusability"
 ```
 
-### 8.4 Những điều AI KHÔNG ĐƯỢC làm
+---
 
-| ❌ Không được | ✅ Thay vào đó |
-|--------------|----------------|
-| Push trực tiếp lên `main` | Tạo nhánh mới → PR |
-| Commit tất cả bằng `git add .` | `git add <file-cụ-thể>` |
-| Sinh toàn bộ app 1 lần | Sinh từng module nhỏ |
-| Bỏ qua lint/analyze | Chạy `flutter analyze` trước |
-| Hardcode strings/colors | Dùng constants/theme |
-| Nested widget > 5 cấp | Tách thành widget riêng |
-| Để `print()` trong code | Dùng `debugPrint()` hoặc logger |
-| Tạo file không đúng thư mục | Theo cấu trúc `lib/` đã quy định |
-| Commit message tiếng Việt không dấu lộn xộn | Theo convention đã quy định |
+## 12. Review & Merge Policy
+
+### Who Reviews?
+- **Team Lead (Phùng Minh Anh — 2351170574)**: Reviews and approves all PRs
+- **Other members**: May review, but at least **1 approval from the team lead** is required to merge
+
+### Review Criteria
+- [ ] Code follows conventions (naming, structure)
+- [ ] Directory structure is correct
+- [ ] No dead code or unused imports
+- [ ] `flutter analyze` has zero warnings
+- [ ] Commit messages follow format
+- [ ] PR description is complete
+- [ ] UI displays correctly (if applicable)
+- [ ] Does **NOT** affect other members' code or other assignments
+- [ ] No nested `.git/` directories
+
+### Merge Process
+1. PR created → Assign team lead as reviewer
+2. Reviewer checks all criteria above
+3. If changes needed → Comment with specifics → Author fixes → Push again
+4. When approved → **Squash and Merge**
+5. Delete branch after merge
 
 ---
 
-## 9. Review & Merge
-
-### Ai review?
-- **Nhóm trưởng (Phùng Minh Anh)**: Review và approve tất cả PR
-- **Thành viên khác**: Có thể review nhưng cần ít nhất **1 approval từ nhóm trưởng** để merge
-
-### Tiêu chí review
-- [ ] Code đúng convention
-- [ ] Cấu trúc thư mục hợp lý
-- [ ] Không có code thừa
-- [ ] `flutter analyze` không có warning
-- [ ] Commit message đúng format
-- [ ] PR description đầy đủ
-- [ ] UI hiển thị đúng (nếu có thay đổi UI)
-- [ ] Không ảnh hưởng code của bài tập khác
-
-### Quy trình merge
-1. PR được tạo → Assign reviewer (nhóm trưởng)
-2. Reviewer kiểm tra theo tiêu chí trên
-3. Nếu cần sửa → Comment cụ thể → Author fix → Push lại
-4. Khi đạt yêu cầu → Approve → **Squash and Merge**
-5. Xóa nhánh sau khi merge
-
----
-
-## 10. Xử lý conflict
+## 13. Conflict Resolution
 
 ```bash
-# 1. Cập nhật main
+# 1. Update main
 git checkout main
 git pull origin main
 
-# 2. Quay lại nhánh của bạn
-git checkout <tên-nhánh-của-bạn>
+# 2. Switch to your branch
+git checkout <your-branch>
 
-# 3. Rebase lên main
+# 3. Rebase onto main
 git rebase main
 
-# 4. Xử lý conflict (nếu có)
-# - Mở file conflict
-# - Giữ code đúng, xóa markers (<<<<, ====, >>>>)
-# - git add <file-đã-resolve>
+# 4. Resolve conflicts (if any)
+# - Open conflicted files
+# - Keep correct code, remove markers (<<<<, ====, >>>>)
+# - git add <resolved-file>
 # - git rebase --continue
 
-# 5. Push lại (force push vì đã rebase)
-git push origin <tên-nhánh> --force-with-lease
+# 5. Force push (after rebase)
+git push origin <your-branch> --force-with-lease
 ```
 
-> ⚠️ **Lưu ý**: Luôn dùng `--force-with-lease` thay vì `--force` để tránh ghi đè code của người khác.
+> ⚠️ Always use `--force-with-lease` instead of `--force` to avoid overwriting others' work.
 
 ---
 
-*Cập nhật lần cuối: Tháng 9/2026*
+*Last updated: September 2026*
