@@ -34,7 +34,7 @@
 
 ## 2. Repository Architecture
 
-This is a **monorepo** where each assignment has separate workspaces per member (identified by MSSV).
+This is a **monorepo** where each assignment is a **shared Flutter project** — all members work on the same codebase, each responsible for specific features.
 
 ```text
 cse441-team13/                          ← ROOT (do NOT run Flutter here)
@@ -42,81 +42,58 @@ cse441-team13/                          ← ROOT (do NOT run Flutter here)
 ├── CONTRIBUTING.md                     ← This file (for AI agents & contributors)
 ├── .gitignore
 │
-├── bai-tap-1/                          ← Assignment 1
-│   ├── 2351170574/                     ← Phùng Minh Anh's Flutter project
-│   │   ├── lib/
-│   │   │   ├── main.dart
-│   │   │   ├── models/
-│   │   │   ├── screens/
-│   │   │   ├── widgets/
-│   │   │   ├── services/
-│   │   │   ├── utils/
-│   │   │   └── theme/
-│   │   ├── test/
-│   │   ├── assets/
-│   │   └── pubspec.yaml
-│   ├── 2251172456/                     ← Phạm Văn Phước's Flutter project
-│   ├── 2351170570/                     ← Ngô Tuấn Anh's Flutter project
-│   └── 2351170616/                     ← Nguyễn Đình Tuấn Sơn's Flutter project
+├── bai-tap-1/                          ← Assignment 1 (Cashew) — shared Flutter project
+│   ├── lib/
+│   │   ├── main.dart                   # Entry point
+│   │   ├── models/                     # Data models
+│   │   ├── screens/                    # Full-page screens/views
+│   │   ├── widgets/                    # Reusable UI components
+│   │   ├── services/                   # Business logic (API, DB...)
+│   │   ├── utils/                      # Helpers, constants
+│   │   └── theme/                      # App theme & styling
+│   ├── test/
+│   ├── assets/
+│   └── pubspec.yaml
 │
-├── bai-tap-2/
-│   ├── 2351170574/
-│   ├── 2251172456/
-│   ├── 2351170570/
-│   └── 2351170616/
+├── bai-tap-2/                          ← Assignment 2 (TBD)
+│   └── ...
 │
 └── ...
 ```
 
-### Internal Flutter Project Structure
+### Member Feature Ownership (bai-tap-1 — Cashew)
 
-Each member workspace (`bai-tap-X/<MSSV>/`) is a standalone Flutter project:
-
-```text
-<MSSV>/
-├── lib/
-│   ├── main.dart                  # Entry point
-│   ├── models/                    # Data models (DTOs, entities)
-│   │   └── user_model.dart
-│   ├── screens/                   # Full-page screens/views
-│   │   ├── home_screen.dart
-│   │   └── login_screen.dart
-│   ├── widgets/                   # Reusable UI components
-│   │   ├── custom_button.dart
-│   │   └── input_field.dart
-│   ├── services/                  # Business logic (API, DB, auth)
-│   │   └── auth_service.dart
-│   ├── utils/                     # Helpers, constants, extensions
-│   │   ├── constants.dart
-│   │   └── helpers.dart
-│   └── theme/                     # App theme & styling
-│       └── app_theme.dart
-├── test/                          # Unit & widget tests
-├── assets/                        # Images, fonts, etc.
-└── pubspec.yaml                   # Dependencies
-```
+| Member | MSSV | Feature Scope |
+|--------|------|---------------|
+| Phùng Minh Anh | 2351170574 | 🏠 Home & Transactions — dashboard, add/edit/delete transactions, search & filter |
+| Phạm Văn Phước | 2251172456 | 💰 Budgets — create/edit/delete budgets, spending limits, budget tracking & history |
+| Ngô Tuấn Anh | 2351170570 | 🏦 Accounts & Goals — manage accounts, transfers, savings goals, net worth |
+| Nguyễn Đình Tuấn Sơn | 2351170616 | 📊 Statistics & Settings — charts, spending comparison, categories, app settings |
 
 ### Target Scope Rule
 
-> **All modifications MUST be restricted to `bai-tap-X/<current-member-MSSV>/` only.**
+> **All modifications MUST be restricted to `bai-tap-X/` directory only.**
+> Each member should only modify files **within their assigned feature scope** (see README.md for detailed file mapping).
+> Files marked as `[Shared]` (main.dart, constants, helpers) require team discussion before editing.
 
 ---
 
 ## 3. Strict Boundaries — What NOT To Do
 
-### ❌ NO Cross-Workspace Pollution
-- **NEVER** edit, format, or delete files belonging to **other members** or **other assignments**.
+### ❌ NO Cross-Feature Pollution
+- **NEVER** edit files belonging to **another member's feature scope** without prior discussion.
 - **NEVER** edit root-level files (`.gitignore`, `CONTRIBUTING.md`, `README.md`) unless explicitly instructed.
+- **Shared files** (`main.dart`, `constants.dart`, `helpers.dart`) require team agreement before modification.
 
 ### ❌ NO Nested .git Repositories (CRITICAL)
-- If you clone or paste an existing Flutter template into the workspace, you **MUST** delete any nested `.git/` folder inside `bai-tap-X/<MSSV>/` immediately.
+- If you clone or paste an existing Flutter template into the workspace, you **MUST** delete any nested `.git/` folder inside `bai-tap-X/` immediately.
 - **NEVER** create git submodules.
 
 ### ❌ NEVER Run Flutter Commands at Root
 - **NEVER** run `flutter pub get`, `flutter build`, or `flutter run` in the root folder.
-- **ALWAYS** `cd` into the assigned member workspace first:
+- **ALWAYS** `cd` into the assignment directory first:
   ```bash
-  cd bai-tap-X/<MSSV>/
+  cd bai-tap-X/
   ```
 
 ### ❌ NO Direct Push to `main`
@@ -152,10 +129,10 @@ git pull origin main
 # 2. Create a new branch
 git checkout -b bai-tap-X/<MSSV>
 
-# 3. Navigate to your workspace
-cd bai-tap-X/<MSSV>/
+# 3. Navigate to the assignment directory
+cd bai-tap-X/
 
-# 4. Work: code, test, commit (see sections below)
+# 4. Work: code within your assigned feature scope, test, commit
 
 # 5. Push branch
 git push -u origin bai-tap-X/<MSSV>
@@ -390,12 +367,13 @@ class MyScreen extends StatefulWidget {
 | Nest widgets > 5 levels | Extract into separate widget files |
 | Use `print()` | Use `debugPrint()` or logger |
 | Create files in wrong directories | Follow directory structure in Section 2 |
-| Edit other members' workspaces | Stay in `bai-tap-X/<current-MSSV>/` only |
-| Run Flutter commands at root | Always `cd bai-tap-X/<MSSV>/` first |
+| Edit files outside your feature scope | Only modify files you own (see README.md) |
+| Run Flutter commands at root | Always `cd bai-tap-X/` first |
 | Create nested `.git/` directories | Delete `.git/` if copied from template |
 | Introduce non-Flutter frameworks | Flutter & Dart ONLY |
 | Generate dead code / unused imports | Clean, minimal code only |
 | Commit `.idea/`, `.vscode/`, `build/` | These are in `.gitignore` |
+| Edit shared files without discussion | Discuss with team before modifying shared files |
 
 ---
 
@@ -406,10 +384,10 @@ When tasked to work for `<member-MSSV>` on `<bai-tap-X>`:
 ```
 ┌─────────────────────────────────────────────────────┐
 │  STEP 1: Understand Requirements                    │
-│  • Read this CONTRIBUTING.md                        │
-│  • Identify scope: which assignment, which feature  │
-│  • Identify files to create/modify                  │
-│  • Verify target workspace: bai-tap-X/<MSSV>/      │
+│  • Read this CONTRIBUTING.md & README.md            │
+│  • Identify: which assignment, which feature scope  │
+│  • Check feature ownership table (Section 2)        │
+│  • Identify files to create/modify within scope     │
 └──────────────────┬──────────────────────────────────┘
                    ▼
 ┌─────────────────────────────────────────────────────┐
@@ -421,23 +399,25 @@ When tasked to work for `<member-MSSV>` on `<bai-tap-X>`:
                    ▼
 ┌─────────────────────────────────────────────────────┐
 │  STEP 3: Navigate & Setup                           │
-│  cd bai-tap-X/<MSSV>/                               │
+│  cd bai-tap-X/                                      │
 │  flutter pub get                                    │
-│  (Delete .git/ if exists inside workspace)          │
+│  (Delete .git/ if exists inside project)            │
 └──────────────────┬──────────────────────────────────┘
                    ▼
 ┌─────────────────────────────────────────────────────┐
 │  STEP 4: Implement Code                             │
+│  • ONLY modify files within your feature scope      │
 │  • Follow directory structure (Section 2)           │
 │  • Follow naming convention (Section 9.1)           │
 │  • Max 300 lines per file                           │
 │  • Extract reusable widgets                         │
 │  • Use constants and themes                         │
+│  • Do NOT touch other members' feature files        │
 └──────────────────┬──────────────────────────────────┘
                    ▼
 ┌─────────────────────────────────────────────────────┐
 │  STEP 5: Quality Check (MANDATORY)                  │
-│  cd bai-tap-X/<MSSV>/                               │
+│  cd bai-tap-X/                                      │
 │  flutter analyze       ← ZERO errors/warnings      │
 │  dart format .          ← Code formatted            │
 │  flutter build          ← Build succeeds            │
@@ -446,7 +426,7 @@ When tasked to work for `<member-MSSV>` on `<bai-tap-X>`:
                    ▼
 ┌─────────────────────────────────────────────────────┐
 │  STEP 6: Commit & Push                              │
-│  git add bai-tap-X/<MSSV>/  ← SPECIFIC paths only  │
+│  git add bai-tap-X/     ← Assignment directory only │
 │  git commit -m "<type>(bai-tap-X): <description>"   │
 │  git push -u origin bai-tap-X/<MSSV>               │
 └──────────────────┬──────────────────────────────────┘
