@@ -16,6 +16,7 @@ $RECYCLE.BIN/
 *.swo
 *~
 *.log
+**/promotional/
 
 # --- IDE & Editors ---
 .idea/

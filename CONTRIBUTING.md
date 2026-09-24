@@ -34,54 +34,73 @@
 
 ## 2. Repository Architecture
 
-This is a **monorepo** where each assignment is a **shared Flutter project** — all members work on the same codebase, each responsible for specific features.
+This repository is a **Flutter monorepo** designed to host all team assignments throughout the semester (`bai-tap-1/`, `bai-tap-2/`, `bai-tap-3/`, etc.).
+
+### Monorepo Structure
 
 ```text
 cse441-team13/                          ← ROOT (do NOT run Flutter here)
-├── README.md                           ← Project info (for humans)
-├── CONTRIBUTING.md                     ← This file (for AI agents & contributors)
+├── README.md                           ← Project info & per-assignment feature breakdown
+├── CONTRIBUTING.md                     ← Global workflow & standard guidelines (this file)
 ├── .gitignore
 │
-├── bai-tap-1/                          ← Assignment 1 (Cashew) — shared Flutter project
+├── bai-tap-1/                          ← Assignment 1 (shared Flutter project)
 │   ├── lib/
-│   │   ├── main.dart                   # Entry point
-│   │   ├── models/                     # Data models
-│   │   ├── screens/                    # Full-page screens/views
-│   │   ├── widgets/                    # Reusable UI components
-│   │   ├── services/                   # Business logic (API, DB...)
-│   │   ├── utils/                      # Helpers, constants
+│   │   ├── main.dart                   # [Shared] App skeleton & navigation entry
+│   │   ├── models/                     # Data models (assigned per member)
+│   │   ├── screens/                    # Full-page screens (assigned per member)
+│   │   ├── widgets/                    # UI widgets (assigned per member)
+│   │   ├── services/                   # Business logic & Mock Data (assigned per member)
+│   │   ├── utils/                      # [Shared] Helpers, constants
 │   │   └── theme/                      # App theme & styling
 │   ├── test/
 │   ├── assets/
 │   └── pubspec.yaml
 │
-├── bai-tap-2/                          ← Assignment 2 (TBD)
+├── bai-tap-2/                          ← Assignment 2 (same standard structure)
+│   └── ...
+│
+├── bai-tap-3/                          ← Assignment 3 (same standard structure)
 │   └── ...
 │
 └── ...
 ```
 
-### Member Feature Ownership (bai-tap-1 — Cashew)
+### Assignment Feature Ownership & Mapping
 
-| Member | MSSV | Feature Scope |
-|--------|------|---------------|
-| Phùng Minh Anh | 2351170574 | 🏠 Home & Transactions — dashboard, add/edit/delete transactions, search & filter |
-| Phạm Văn Phước | 2251172456 | 💰 Budgets — create/edit/delete budgets, spending limits, budget tracking & history |
-| Ngô Tuấn Anh | 2351170570 | 🏦 Accounts & Goals — manage accounts, transfers, savings goals, net worth |
-| Nguyễn Đình Tuấn Sơn | 2351170616 | 📊 Statistics & Settings — charts, spending comparison, categories, app settings |
+- For each assignment (`bai-tap-X/`), the team works on **1 shared Flutter project**.
+- The specific breakdown of features, assigned members (MSSV), and allocated files for each assignment is **defined in [README.md](./README.md)** under that assignment's section.
+- **Rule for Developers & AI Agents**:
+  - **Always inspect [README.md](./README.md)** first to identify which feature and which specific files belong to the member (MSSV) you are working for in `bai-tap-X/`.
+  - Only modify files within that member's allocated scope.
+
+### 💡 Core Universal Principle: Self-Contained Features & Autonomous Data
+
+This principle applies to **ALL assignments** across the course:
+
+1. **Self-Contained Data (Mock Data / In-memory Service First)**:
+   - This is a modular team assignment. **DO NOT** create tightly coupled shared databases (e.g. monolithic SQLite schemas) or complex cross-feature global state machines that create blockers between members.
+   - Each member's feature manages its own data locally via **Mock Data** or **In-memory Services** inside their assigned `services/` and `models/`.
+   - Each screen MUST run and function independently. Any member or examiner can open that screen, interact with mock data, and test UI/UX without depending on another member's unfinished code.
+2. **Zero Cross-Dependency**:
+   - No member waits for another member's feature to be ready.
+   - Example: Screen A displays and manipulates its own mock dataset; Screen B operates on its own mock dataset without requiring Screen A's logic to be merged.
+3. **Plug-and-Play Integration**:
+   - Shared files like `main.dart` only provide the tab/navigation skeleton (e.g., `BottomNavigationBar` or routing) to host the separate screens. Shared skeleton files are set up once by the team lead.
 
 ### Target Scope Rule
 
-> **All modifications MUST be restricted to `bai-tap-X/` directory only.**
-> Each member should only modify files **within their assigned feature scope** (see README.md for detailed file mapping).
-> Files marked as `[Shared]` (main.dart, constants, helpers) require team discussion before editing.
+> **All modifications for an assignment MUST be restricted to `bai-tap-X/` directory only.**
+> Each member only modifies files **within their assigned feature scope** as specified in `README.md`.
+> Files marked as `[Shared]` (`main.dart`, `constants.dart`, `helpers.dart`) require team agreement before editing.
 
 ---
 
 ## 3. Strict Boundaries — What NOT To Do
 
-### ❌ NO Cross-Feature Pollution
+### ❌ NO Cross-Feature Pollution & Coupling
 - **NEVER** edit files belonging to **another member's feature scope** without prior discussion.
+- **NEVER** force tight data coupling (e.g. demanding another member's model/DB be finished before you can render your screen). Always provide fallback/mock data.
 - **NEVER** edit root-level files (`.gitignore`, `CONTRIBUTING.md`, `README.md`) unless explicitly instructed.
 - **Shared files** (`main.dart`, `constants.dart`, `helpers.dart`) require team agreement before modification.
 
@@ -230,7 +249,7 @@ Examples:
 - [ ] (If UI change) Screenshots attached
 
 ## 🧪 How to Test
-1. `cd bai-tap-X/<MSSV>/`
+1. `cd bai-tap-X/`
 2. `flutter pub get`
 3. `flutter run`
 4. ...
@@ -243,10 +262,10 @@ Examples:
 
 ## 8. Pre-PR Checklist
 
-Before creating a PR, you **MUST** run these commands inside the member workspace:
+Before creating a PR, you **MUST** run these commands inside the assignment directory:
 
 ```bash
-cd bai-tap-X/<MSSV>/
+cd bai-tap-X/
 
 # 1. Code analysis — must have ZERO errors/warnings
 flutter analyze
@@ -276,7 +295,7 @@ git diff --stat
 - PR description is missing or too brief
 - Contains unnecessary files (build, `.idea/`, `.vscode/`...)
 - Code is not formatted (`dart format`)
-- Modifies files outside assigned workspace
+- Modifies files outside assigned feature scope
 
 ---
 
@@ -342,38 +361,38 @@ class MyScreen extends StatefulWidget {
 
 > 🤖 This section is specifically for **AI tools** (GitHub Copilot, Gemini, ChatGPT, Claude, Cursor, Windsurf, etc.).
 
-### The AI Agent MUST:
+### 10.1 The AI Agent MUST:
 
-1. **Read this CONTRIBUTING.md FIRST** before writing any code
-2. **Identify the target workspace**: `bai-tap-X/<MSSV>/`
-3. **Only modify files within that workspace** — never touch other members' code
-4. **Follow the directory structure** in Section 2 exactly
-5. **Follow naming conventions** in Section 9.1 exactly
-6. **Generate code in small, focused modules** — one feature/fix per PR
-7. **Keep each file ≤ 300 lines**
-8. **Run quality checks** before suggesting a push (Section 8)
-9. **Use proper commit messages** following Section 6
-10. **Never push directly to `main`** — always create a branch + PR
+1. **Read this CONTRIBUTING.md & README.md FIRST** before writing any code.
+2. **Identify the assigned member (MSSV) and feature scope** (see table in Section 2 and README.md).
+3. **Only modify files within that member's assigned scope** — never touch other members' code or shared files.
+4. **Use Self-Contained Mock Data**: Always implement features with internal mock data (in-memory list / service). **DO NOT** create dependencies on other members' models, shared databases, or global state.
+5. **Follow the directory structure** in Section 2 exactly.
+6. **Follow naming conventions** in Section 9.1 exactly.
+7. **Keep each file ≤ 300 lines** — extract sub-widgets if needed.
+8. **Run quality checks** before suggesting a push (`flutter analyze`, `dart format .`).
+9. **Use proper commit messages** following Section 6 (`feat(bai-tap-X): ...`).
+10. **Never push directly to `main`** — always create a branch `bai-tap-X/<MSSV>` + PR.
 
-### The AI Agent MUST NOT:
+### 10.2 The AI Agent MUST NOT:
 
 | ❌ Forbidden | ✅ Do This Instead |
 |-------------|-------------------|
-| Push directly to `main` | Create branch → PR |
-| Use `git add .` | `git add bai-tap-X/<MSSV>/` (specific paths) |
-| Generate entire app in one shot | Generate module by module |
-| Skip `flutter analyze` | Always run before push |
+| Push directly to `main` | Create branch `bai-tap-X/<MSSV>` → PR |
+| Use `git add .` | Stage only modified assigned files (e.g., `git add bai-tap-1/lib/screens/...`) |
+| Demand shared DB or cross-module state | Use self-contained mock data & in-memory CRUD |
+| Edit files outside assigned feature scope | Only modify files owned by the specified member |
+| Edit shared files (`main.dart`, `constants.dart`) | Ask user/lead before modifying shared files |
+| Generate entire app in one shot | Generate module by module within member's scope |
+| Skip `flutter analyze` | Always run before push (must be zero errors) |
 | Hardcode strings/colors/sizes | Use `constants.dart` or `app_theme.dart` |
-| Nest widgets > 5 levels | Extract into separate widget files |
+| Nest widgets > 5 levels | Extract into separate widget files in `widgets/` |
 | Use `print()` | Use `debugPrint()` or logger |
-| Create files in wrong directories | Follow directory structure in Section 2 |
-| Edit files outside your feature scope | Only modify files you own (see README.md) |
 | Run Flutter commands at root | Always `cd bai-tap-X/` first |
 | Create nested `.git/` directories | Delete `.git/` if copied from template |
 | Introduce non-Flutter frameworks | Flutter & Dart ONLY |
 | Generate dead code / unused imports | Clean, minimal code only |
 | Commit `.idea/`, `.vscode/`, `build/` | These are in `.gitignore` |
-| Edit shared files without discussion | Discuss with team before modifying shared files |
 
 ---
 
@@ -386,7 +405,7 @@ When tasked to work for `<member-MSSV>` on `<bai-tap-X>`:
 │  STEP 1: Understand Requirements                    │
 │  • Read this CONTRIBUTING.md & README.md            │
 │  • Identify: which assignment, which feature scope  │
-│  • Check feature ownership table (Section 2)        │
+│  • Check feature ownership table in README.md for that specific assignment        │
 │  • Identify files to create/modify within scope     │
 └──────────────────┬──────────────────────────────────┘
                    ▼

@@ -122,12 +122,26 @@ bai-tap-1/lib/
     └── app_theme.dart                     # [Tuấn Sơn] Theme & styling
 ```
 
-#### ⚠️ Lưu ý khi làm việc
+#### ⚠️ Nguyên tắc cốt lõi: Độc lập chức năng & Dữ liệu tự chủ (Self-Contained)
 
-- Mỗi thành viên **chỉ chỉnh sửa file trong phạm vi chức năng** của mình
-- File **`[Chung]`** (main.dart, constants, helpers...): trao đổi trước khi sửa, tránh conflict
-- Tạo nhánh theo format: `bai-tap-1/<MSSV>` (ví dụ: `bai-tap-1/2351170574`)
-- Đọc [CONTRIBUTING.md](./CONTRIBUTING.md) để nắm quy trình PR & commit convention
+> **Mục tiêu**: Đảm bảo mỗi thành viên có thể code, test và hoàn thành bài tập của mình một cách **hoàn toàn độc lập**, không bị phụ thuộc, không phải chờ đợi thành viên khác và **không lo đụng chạm/conflict code**.
+
+1. **Dữ liệu tự quản lý (Mock Data / In-memory Service)**:
+   - **KHÔNG cần dùng chung Database hay State phức tạp** giữa các thành viên.
+   - Mỗi thành viên tự tạo dữ liệu mẫu (mock data) và hàm CRUD nội bộ trong `services/` của riêng mình:
+     - `transaction_service.dart`: Chứa sẵn danh sách giao dịch mẫu (mock list), thêm/sửa/xóa trực tiếp trên danh sách này.
+     - `budget_service.dart`: Chứa sẵn danh sách ngân sách mẫu, tự tính toán tiến độ trên dữ liệu của ngân sách.
+     - `account_service.dart`: Chứa sẵn danh sách tài khoản ngân hàng / ví tiền mẫu.
+     - `statistics_service.dart`: Tự định nghĩa dữ liệu biểu đồ mẫu hoặc tính toán độc lập.
+2. **Không phụ thuộc chéo (Zero Cross-Dependency)**:
+   - Màn hình của thành viên nào tự gọi Service của thành viên đó để hiển thị dữ liệu.
+   - Không import chéo hoặc phụ thuộc vào logic chưa hoàn thiện của người khác.
+   - Tất cả 4 màn hình chỉ cần cắm vào thanh điều hướng (BottomNavigationBar) ở `main.dart` là có thể chạy và chấm điểm mượt mà.
+3. **Phạm vi file rõ ràng**:
+   - Mỗi thành viên **chỉ chỉnh sửa file trong danh sách phân công** của mình.
+   - File **`[Chung]`** (`main.dart`, `constants.dart`, `helpers.dart`): Trưởng nhóm dựng khung sườn một lần, các thành viên không tự ý sửa đổi để tránh conflict Git.
+   - Tạo nhánh theo format: `bai-tap-1/<MSSV>` (ví dụ: `bai-tap-1/2351170574`).
+   - Đọc [CONTRIBUTING.md](./CONTRIBUTING.md) để nắm quy trình PR & commit convention.
 
 ---
 
