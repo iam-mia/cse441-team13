@@ -22,6 +22,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart'
     hide SliverReorderableList, ReorderableDelayedDragStartListener;
 import 'package:provider/provider.dart';
+import 'package:budget/widgets/globalSnackbar.dart';
+import 'package:budget/widgets/openSnackbar.dart';
+import 'package:budget/widgets/personalized_goal_card.dart';
 import 'addButton.dart';
 
 // This defines what a difference only loan can be
@@ -51,6 +54,7 @@ class ObjectivesListPage extends StatefulWidget {
 
 class ObjectivesListPageState extends State<ObjectivesListPage> {
   GlobalKey<PageFrameworkState> pageState = GlobalKey();
+  bool usePersonalizedView = true;
 
   void scrollToTop() {
     pageState.currentState?.scrollToTop();
@@ -65,6 +69,38 @@ class ObjectivesListPageState extends State<ObjectivesListPage> {
       backButton: widget.backButton,
       horizontalPaddingConstrained: enableDoubleColumn(context) == false,
       actions: [
+        IconButton(
+          padding: const EdgeInsetsDirectional.all(15),
+          tooltip: usePersonalizedView
+              ? "Chuyển sang giao diện cổ điển"
+              : "Chuyển sang giao diện cá nhân hóa",
+          onPressed: () {
+            setState(() {
+              usePersonalizedView = !usePersonalizedView;
+            });
+            openSnackbar(
+              SnackbarMessage(
+                title: usePersonalizedView
+                    ? "Giao diện Mục tiêu cá nhân hóa 🌟"
+                    : "Giao diện Mục tiêu cổ điển",
+                description: usePersonalizedView
+                    ? "Đã bật thẻ tích lũy động viên & lộ trình cột mốc cá nhân"
+                    : "Đã chuyển về danh sách đơn giản ban đầu",
+                icon: usePersonalizedView
+                    ? Icons.auto_awesome_rounded
+                    : Icons.view_agenda_outlined,
+              ),
+            );
+          },
+          icon: Icon(
+            usePersonalizedView
+                ? Icons.auto_awesome_rounded
+                : Icons.auto_awesome_outlined,
+            color: usePersonalizedView
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.onSecondaryContainer,
+          ),
+        ),
         IconButton(
           padding: EdgeInsetsDirectional.all(15),
           tooltip: "edit-goals".tr(),
@@ -102,7 +138,10 @@ class ObjectivesListPageState extends State<ObjectivesListPage> {
       ],
       slivers: [
         ObjectiveList(
-            showExamplesIfEmpty: true, objectiveType: ObjectiveType.goal),
+          showExamplesIfEmpty: true,
+          objectiveType: ObjectiveType.goal,
+          usePersonalizedView: usePersonalizedView,
+        ),
         SliverToBoxAdapter(
           child: SizedBox(height: 50),
         ),
@@ -118,6 +157,7 @@ class ObjectiveList extends StatelessWidget {
     this.showAddButton = true,
     this.searchFor,
     this.isIncome,
+    this.usePersonalizedView = true,
     super.key,
   });
   final bool showExamplesIfEmpty;
@@ -125,6 +165,7 @@ class ObjectiveList extends StatelessWidget {
   final bool showAddButton;
   final String? searchFor;
   final bool? isIncome;
+  final bool usePersonalizedView;
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Objective>>(
@@ -227,7 +268,7 @@ class ObjectiveList extends StatelessWidget {
               ? SliverGrid(
                   gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 500.0,
-                    mainAxisExtent: 160,
+                    mainAxisExtent: usePersonalizedView ? 220 : 160,
                     mainAxisSpacing:
                         getPlatform() == PlatformOS.isIOS ? 0 : 15.0,
                     crossAxisSpacing:
@@ -253,6 +294,19 @@ class ObjectiveList extends StatelessWidget {
                       } else {
                         Objective objective = objectivesList[
                             index - (showDemoObjectives ? 1 : 0)];
+                        if (usePersonalizedView &&
+                            objective.type == ObjectiveType.goal) {
+                          return PersonalizedGoalCard(
+                            index: index,
+                            objective: objective,
+                            forcedTotalAmount: showDemoObjectives
+                                ? (objective.income
+                                        ? randomInt[index].toDouble() * -1
+                                        : randomInt[index].toDouble()) *
+                                    15
+                                : null,
+                          );
+                        }
                         return ObjectiveContainer(
                           index: index,
                           objective: objective,
@@ -282,6 +336,19 @@ class ObjectiveList extends StatelessWidget {
                       } else {
                         Objective objective = objectivesList[
                             index - (showDemoObjectives ? 1 : 0)];
+                        if (usePersonalizedView &&
+                            objective.type == ObjectiveType.goal) {
+                          return PersonalizedGoalCard(
+                            index: index,
+                            objective: objective,
+                            forcedTotalAmount: showDemoObjectives
+                                ? (objective.income
+                                        ? randomInt[index].toDouble() * -1
+                                        : randomInt[index].toDouble()) *
+                                    15
+                                : null,
+                          );
+                        }
                         return Padding(
                           padding: EdgeInsetsDirectional.only(
                             bottom:
